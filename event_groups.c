@@ -73,6 +73,22 @@
 /*-----------------------------------------------------------*/
 
 /*
+ * When the port is using granular locks, the critical sections are replaced
+ * with the granular lock API.
+ */
+    #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) )
+        #undef taskENTER_CRITICAL
+        #undef taskEXIT_CRITICAL
+        #undef taskENTER_CRITICAL_FROM_ISR
+        #undef taskEXIT_CRITICAL_FROM_ISR
+
+        #define taskENTER_CRITICAL()               taskLOCK_DATA_GROUP( &( pxEventBits->xTaskSpinlock ), &( pxEventBits->xISRSpinlock ) )
+        #define taskEXIT_CRITICAL()                taskUNLOCK_DATA_GROUP( &( pxEventBits->xTaskSpinlock ), &( pxEventBits->xISRSpinlock ) )
+        #define taskENTER_CRITICAL_FROM_ISR()      taskLOCK_DATA_GROUP_FROM_ISR( &( pxEventBits->xISRSpinlock ) )
+        #define taskEXIT_CRITICAL_FROM_ISR( x )    taskUNLOCK_DATA_GROUP_FROM_ISR( x, &( pxEventBits->xISRSpinlock ) )
+    #endif /* #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) ) */
+
+/*
  * Suspends an event group. Prevents other tasks from accessing the queue but allows
  * ISRs to pend access to the queue. Caller cannot be preempted by other tasks
  * after suspending the event group, thus allowing the caller to execute non-deterministic
@@ -327,7 +343,7 @@
             if( ( uxReturn & eventUNBLOCKED_DUE_TO_BIT_SET ) == ( EventBits_t ) 0 )
             {
                 /* The task timed out, just return the current event bit value. */
-                taskLOCK_DATA_GROUP( &( pxEventBits->xTaskSpinlock ), &( pxEventBits->xISRSpinlock ) );
+                taskENTER_CRITICAL();
                 {
                     uxReturn = pxEventBits->uxEventBits;
 
@@ -344,7 +360,7 @@
                         mtCOVERAGE_TEST_MARKER();
                     }
                 }
-                taskUNLOCK_DATA_GROUP( &( pxEventBits->xTaskSpinlock ), &( pxEventBits->xISRSpinlock ) );
+                taskEXIT_CRITICAL();
 
                 xTimeoutOccurred = pdTRUE;
             }
@@ -482,7 +498,7 @@
 
             if( ( uxReturn & eventUNBLOCKED_DUE_TO_BIT_SET ) == ( EventBits_t ) 0 )
             {
-                taskLOCK_DATA_GROUP( &( pxEventBits->xTaskSpinlock ), &( pxEventBits->xISRSpinlock ) );
+                taskENTER_CRITICAL();
                 {
                     /* The task timed out, just return the current event bit value. */
                     uxReturn = pxEventBits->uxEventBits;
@@ -507,7 +523,7 @@
 
                     xTimeoutOccurred = pdTRUE;
                 }
-                taskUNLOCK_DATA_GROUP( &( pxEventBits->xTaskSpinlock ), &( pxEventBits->xISRSpinlock ) );
+                taskEXIT_CRITICAL();
             }
             else
             {
@@ -542,7 +558,7 @@
         configASSERT( xEventGroup );
         configASSERT( ( uxBitsToClear & eventEVENT_BITS_CONTROL_BYTES ) == 0 );
 
-        taskLOCK_DATA_GROUP( &( pxEventBits->xTaskSpinlock ), &( pxEventBits->xISRSpinlock ) );
+        taskENTER_CRITICAL();
         {
             traceEVENT_GROUP_CLEAR_BITS( xEventGroup, uxBitsToClear );
 
@@ -553,7 +569,7 @@
             /* Clear the bits. */
             pxEventBits->uxEventBits &= ~uxBitsToClear;
         }
-        taskUNLOCK_DATA_GROUP( &( pxEventBits->xTaskSpinlock ), &( pxEventBits->xISRSpinlock ) );
+        taskEXIT_CRITICAL();
 
         traceRETURN_xEventGroupClearBits( uxReturn );
 
@@ -592,11 +608,11 @@
         /* MISRA Ref 4.7.1 [Return value shall be checked] */
         /* More details at: https://github.com/FreeRTOS/FreeRTOS-Kernel/blob/main/MISRA.md#dir-47 */
         /* coverity[misra_c_2012_directive_4_7_violation] */
-        uxSavedInterruptStatus = taskLOCK_DATA_GROUP_FROM_ISR( &( pxEventBits->xISRSpinlock ) );
+        uxSavedInterruptStatus = taskENTER_CRITICAL_FROM_ISR();
         {
             uxReturn = pxEventBits->uxEventBits;
         }
-        taskUNLOCK_DATA_GROUP_FROM_ISR( uxSavedInterruptStatus, &( pxEventBits->xISRSpinlock ) );
+        taskEXIT_CRITICAL_FROM_ISR( uxSavedInterruptStatus );
 
         traceRETURN_xEventGroupGetBitsFromISR( uxReturn );
 
