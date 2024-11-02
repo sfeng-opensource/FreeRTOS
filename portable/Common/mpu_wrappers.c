@@ -1799,14 +1799,14 @@
 
     #if ( configUSE_TIMERS == 1 )
         void MPU_vTimerSetReloadMode( TimerHandle_t xTimer,
-                                      const BaseType_t uxAutoReload ) /* FREERTOS_SYSTEM_CALL */
+                                      const BaseType_t xAutoReload ) /* FREERTOS_SYSTEM_CALL */
         {
             if( portIS_PRIVILEGED() == pdFALSE )
             {
                 portRAISE_PRIVILEGE();
                 portMEMORY_BARRIER();
 
-                vTimerSetReloadMode( xTimer, uxAutoReload );
+                vTimerSetReloadMode( xTimer, xAutoReload );
                 portMEMORY_BARRIER();
 
                 portRESET_PRIVILEGE();
@@ -1814,7 +1814,7 @@
             }
             else
             {
-                vTimerSetReloadMode( xTimer, uxAutoReload );
+                vTimerSetReloadMode( xTimer, xAutoReload );
             }
         }
     #endif /* if ( configUSE_TIMERS == 1 ) */

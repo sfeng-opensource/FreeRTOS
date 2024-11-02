@@ -2278,6 +2278,7 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
             /* If null is passed in here then it is the calling task that is
              * being deleted. */
             pxTCB = prvGetTCBFromHandle( xTaskToDelete );
+            configASSERT( pxTCB != NULL );
 
             /* Remove task from the ready/delayed list. */
             if( uxListRemove( &( pxTCB->xStateListItem ) ) == ( UBaseType_t ) 0 )
@@ -2574,7 +2575,7 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
 
         traceENTER_eTaskGetState( xTask );
 
-        configASSERT( pxTCB );
+        configASSERT( pxTCB != NULL );
 
         #if ( configNUMBER_OF_CORES == 1 )
             if( pxTCB == pxCurrentTCB )
@@ -2719,6 +2720,8 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
             /* If null is passed in here then it is the priority of the task
              * that called uxTaskPriorityGet() that is being queried. */
             pxTCB = prvGetTCBFromHandle( xTask );
+            configASSERT( pxTCB != NULL );
+
             uxReturn = pxTCB->uxPriority;
         }
         #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) )
@@ -2771,6 +2774,8 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
             /* If null is passed in here then it is the priority of the calling
              * task that is being queried. */
             pxTCB = prvGetTCBFromHandle( xTask );
+            configASSERT( pxTCB != NULL );
+
             uxReturn = pxTCB->uxPriority;
         }
         taskUNLOCK_DATA_GROUP_FROM_ISR( uxSavedInterruptStatus, &xISRSpinlock );
@@ -2801,6 +2806,8 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
             /* If null is passed in here then it is the base priority of the task
              * that called uxTaskBasePriorityGet() that is being queried. */
             pxTCB = prvGetTCBFromHandle( xTask );
+            configASSERT( pxTCB != NULL );
+
             uxReturn = pxTCB->uxBasePriority;
         }
         #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) )
@@ -2853,6 +2860,8 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
             /* If null is passed in here then it is the base priority of the calling
              * task that is being queried. */
             pxTCB = prvGetTCBFromHandle( xTask );
+            configASSERT( pxTCB != NULL );
+
             uxReturn = pxTCB->uxBasePriority;
         }
         taskUNLOCK_DATA_GROUP_FROM_ISR( uxSavedInterruptStatus, &xISRSpinlock );
@@ -2901,6 +2910,7 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
             /* If null is passed in here then it is the priority of the calling
              * task that is being changed. */
             pxTCB = prvGetTCBFromHandle( xTask );
+            configASSERT( pxTCB != NULL );
 
             traceTASK_PRIORITY_SET( pxTCB, uxNewPriority );
 
@@ -3103,6 +3113,7 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
         #endif /* #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) ) */
         {
             pxTCB = prvGetTCBFromHandle( xTask );
+            configASSERT( pxTCB != NULL );
 
             pxTCB->uxCoreAffinityMask = uxCoreAffinityMask;
 
@@ -3166,6 +3177,8 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
         #endif /* #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) ) */
         {
             pxTCB = prvGetTCBFromHandle( xTask );
+            configASSERT( pxTCB != NULL );
+
             uxCoreAffinityMask = pxTCB->uxCoreAffinityMask;
         }
         #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) )
@@ -3197,6 +3210,7 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
         #endif /* #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) ) */
         {
             pxTCB = prvGetTCBFromHandle( xTask );
+            configASSERT( pxTCB != NULL );
 
             pxTCB->xPreemptionDisable++;
         }
@@ -3228,6 +3242,8 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
         #endif /* #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) ) */
         {
             pxTCB = prvGetTCBFromHandle( xTask );
+
+            configASSERT( pxTCB != NULL );
             configASSERT( pxTCB->xPreemptionDisable > 0U );
 
             pxTCB->xPreemptionDisable--;
@@ -3270,6 +3286,7 @@ static void prvInitialiseNewTask( TaskFunction_t pxTaskCode,
             /* If null is passed in here then it is the running task that is
              * being suspended. */
             pxTCB = prvGetTCBFromHandle( xTaskToSuspend );
+            configASSERT( pxTCB != NULL );
 
             traceTASK_SUSPEND( pxTCB );
 
@@ -4419,7 +4436,7 @@ char * pcTaskGetName( TaskHandle_t xTaskToQuery )
     /* If null is passed in here then the name of the calling task is being
      * queried. */
     pxTCB = prvGetTCBFromHandle( xTaskToQuery );
-    configASSERT( pxTCB );
+    configASSERT( pxTCB != NULL );
 
     traceRETURN_pcTaskGetName( &( pxTCB->pcTaskName[ 0 ] ) );
 
@@ -4582,6 +4599,7 @@ char * pcTaskGetName( TaskHandle_t xTaskToQuery )
         configASSERT( ppxTaskBuffer != NULL );
 
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         #if ( tskSTATIC_AND_DYNAMIC_ALLOCATION_POSSIBLE == 1 )
         {
@@ -4829,7 +4847,7 @@ BaseType_t xTaskCatchUpTicks( TickType_t xTicksToCatchUp )
 
         traceENTER_xTaskAbortDelay( xTask );
 
-        configASSERT( pxTCB );
+        configASSERT( pxTCB != NULL );
 
         vTaskSuspendAll();
         {
@@ -5254,6 +5272,7 @@ BaseType_t xTaskIncrementTick( void )
 
         /* If xTask is NULL then set the calling task's hook. */
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         /* Save the hook function in the TCB.  A critical section is required as
          * the value can be accessed from an interrupt. */
@@ -5291,6 +5310,7 @@ BaseType_t xTaskIncrementTick( void )
 
         /* If xTask is NULL then set the calling task's hook. */
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         /* Save the hook function in the TCB.  A critical section is required as
          * the value can be accessed from an interrupt. */
@@ -6415,6 +6435,8 @@ static portTASK_FUNCTION( prvIdleTask, pvParameters )
             ( xIndex < ( BaseType_t ) configNUM_THREAD_LOCAL_STORAGE_POINTERS ) )
         {
             pxTCB = prvGetTCBFromHandle( xTaskToQuery );
+            configASSERT( pxTCB != NULL );
+
             pvReturn = pxTCB->pvThreadLocalStoragePointers[ xIndex ];
         }
         else
@@ -6442,6 +6464,7 @@ static portTASK_FUNCTION( prvIdleTask, pvParameters )
         /* If null is passed in here then we are modifying the MPU settings of
          * the calling task. */
         pxTCB = prvGetTCBFromHandle( xTaskToModify );
+        configASSERT( pxTCB != NULL );
 
         vPortStoreTaskMPUSettings( &( pxTCB->xMPUSettings ), pxRegions, NULL, 0 );
 
@@ -6580,6 +6603,7 @@ static void prvCheckTasksWaitingTermination( void )
 
         /* xTask is NULL then get the state of the calling task. */
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         pxTaskStatus->xHandle = pxTCB;
         pxTaskStatus->pcTaskName = ( const char * ) &( pxTCB->pcTaskName[ 0 ] );
@@ -6804,6 +6828,7 @@ static void prvCheckTasksWaitingTermination( void )
          * type. */
 
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         #if portSTACK_GROWTH < 0
         {
@@ -6836,6 +6861,7 @@ static void prvCheckTasksWaitingTermination( void )
         traceENTER_uxTaskGetStackHighWaterMark( xTask );
 
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         #if portSTACK_GROWTH < 0
         {
@@ -8832,6 +8858,7 @@ TickType_t uxTaskResetEventItemValue( void )
         /* If null is passed in here then it is the calling task that is having
          * its notification state cleared. */
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) )
             taskLOCK_KERNEL_DATA_GROUP();
@@ -8879,6 +8906,7 @@ TickType_t uxTaskResetEventItemValue( void )
         /* If null is passed in here then it is the calling task that is having
          * its notification state cleared. */
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         #if ( ( portUSING_GRANULAR_LOCKS == 1 ) && ( configNUMBER_OF_CORES > 1 ) )
             taskLOCK_KERNEL_DATA_GROUP();
@@ -8914,6 +8942,7 @@ TickType_t uxTaskResetEventItemValue( void )
         traceENTER_ulTaskGetRunTimeCounter( xTask );
 
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         traceRETURN_ulTaskGetRunTimeCounter( pxTCB->ulRunTimeCounter );
 
@@ -8941,6 +8970,8 @@ TickType_t uxTaskResetEventItemValue( void )
         if( ulTotalTime > ( configRUN_TIME_COUNTER_TYPE ) 0 )
         {
             pxTCB = prvGetTCBFromHandle( xTask );
+            configASSERT( pxTCB != NULL );
+
             ulReturn = pxTCB->ulRunTimeCounter / ulTotalTime;
         }
         else
@@ -9144,6 +9175,7 @@ static void prvAddCurrentTaskToDelayedList( TickType_t xTicksToWait,
         traceENTER_xTaskGetMPUSettings( xTask );
 
         pxTCB = prvGetTCBFromHandle( xTask );
+        configASSERT( pxTCB != NULL );
 
         traceRETURN_xTaskGetMPUSettings( &( pxTCB->xMPUSettings ) );
 
